@@ -10,7 +10,8 @@ from pathlib import Path
 
 import yaml
 
-from .episode_indexer import reindex_season_episodes, force_reindex_season_episodes
+from .episode_indexer import (force_reindex_season_episodes,
+                              reindex_season_episodes)
 
 try:
     from capturemd.error_logger import log_error, log_subprocess_error
@@ -519,7 +520,7 @@ def download_podcast_from_note(note_id, url):
 
 
 # PERF: Jellyfin seems to be able to keep track of media watch status even when the episode counts shifts.
-# Ideally this will become more robus once the watch status is stored in markdown as well
+# Ideally this will become more robust once the watch status is stored in markdown as well
 def _reindex_season_episodes():
     """Wrapper for reindex_season_episodes from episode_indexer module."""
     reindex_season_episodes(YOUTUBE_CACHE_DIR)
