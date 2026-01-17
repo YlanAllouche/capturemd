@@ -1,8 +1,9 @@
 ![banner](banner.webp)
 # capturemd
 
-A personal productivity tool for capturing web content into structured markdown notes with support for video downloads through `yt-dlp`.
+A personal and very idiosyncratic productivity tool for capturing web content into structured markdown notes with support for video downloads through `yt-dlp`.
 Connects to self hosted services like Wallabag and FreshRSS.
+Meant to be a replacement to org-capture living outside of Obsidan.
 
 ## Features
 
@@ -24,16 +25,37 @@ pip install . # --break-system-packages
 
 ## Usage
 
+### From CLI
+
 ```bash
 # Capture from clipboard
 capturemd url
 
 # Capture specific URL
 capturemd url "https://example.com"
+```
 
+
+## From Android
+
+- wallabag is the main way I get data out of my Android phone (although it should work on iOS)
+- sharing a link to wallabag will eventually have `capturemd` process it on a cron
+- one off notes are entered as google search in a new tab and added into the "$SHARE/notes/browser_notes.md" file
+
+## Parsing
+
+Parse from external services into markdown
+
+```bash
+capturemd parse-rss # parses the starred items
+capturemd parse-wallabag # parses new entries from wallabag and tag them as parsed if meant to stay there, otherwise removes the entry
+```
+
+when parsed from external sources or manually from a URL, notes are initially bare and only specifiy a url/platform-specific UUID (like the ID of a youtube video).
+Then when runnin `parse` the script contacts the appropriate server and writes down the information.
+
+
+```bash
 # Parse all notes
 capturemd parse
-
-# Play cached video
-capturemd play "video_id"
 ```
