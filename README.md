@@ -35,6 +35,32 @@ capturemd url
 capturemd url "https://example.com"
 ```
 
+## From browser
+
+Similar as from the CLi, this can be called from Qutebrowser/Tridactyl withsomething like:
+
+### Tridactyl
+
+Add to `~/.tridactylrc`:
+
+``` bash
+# Capture current page
+bind ,b composite get_current_url | js -p tri.excmds.shellescape(JS_ARG).then(url => tri.excmds.exclaim_quiet('notify-send Captured && ~/.local/bin/capturemd url ' + url))
+# Capture "hinted" link 
+bind ,B hint -qW js -p tri.excmds.shellescape(JS_ARG).then(url => tri.excmds.exclaim('notify-send "Captured target link" && ~/.local/bin/capturemd url ' + url))
+```
+
+
+### Qutebrowser
+
+Add to `~/.config/qutebrowser/config.py`:
+
+``` python
+# Capture current page
+c.bind(',b', 'spawn capturemd url {url}')
+# Capture "hinted" link
+c.bind(',B', 'spawn capturemd url {hint-url}')
+```
 
 ## From Android
 
