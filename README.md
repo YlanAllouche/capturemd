@@ -85,3 +85,35 @@ Then when runnin `parse` the script contacts the appropriate server and writes d
 # Parse all notes
 capturemd parse
 ```
+
+## Environment Variables
+
+capturemd can be configured using environment variables. Copy `.env.example` to `.env` and modify as needed.
+
+### Service Configuration
+
+| Variable | Description |
+|----------|-------------|
+| `WALLABAG_HOST` | Wallabag instance URL |
+| `WALLABAG_CLIENT_ID` | Wallabag OAuth client ID |
+| `WALLABAG_CLIENT_SECRET` | Wallabag OAuth client secret |
+| `WALLABAG_USERNAME` | Wallabag username |
+| `WALLABAG_PASSWORD` | Wallabag password |
+| `FRESHRSS_URL` | FreshRSS API endpoint |
+| `FRESHRSS_USERNAME` | FreshRSS username |
+| `FRESHRSS_PASSWORD` | FreshRSS password |
+
+### Directory Configuration
+
+By default, capturemd uses `~/share` for notes and `~/Media` for cached media. These can be overridden:
+
+| Variable | Description | Default |
+|----------|-------------|---------|
+| `CAPTUREMD_SHARE_BASE` | Base directory for notes and markdown files | `~/share` |
+| `CAPTUREMD_MEDIA_BASE` | Base directory for cached media (videos, podcasts) | `~/Media` |
+
+Example:
+```bash
+export CAPTUREMD_SHARE_BASE=/data/share
+export CAPTUREMD_MEDIA_BASE=/data/Media
+```

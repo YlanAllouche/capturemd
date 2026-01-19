@@ -12,17 +12,13 @@ import yaml
 
 from .episode_indexer import (force_reindex_season_episodes,
                               reindex_season_episodes)
+from .paths import (PODCAST_CACHE_DIR, PODCAST_NOTES_DIR, YOUTUBE_CACHE_DIR,
+                    YOUTUBE_NOTES_DIR)
 
 try:
     from capturemd.error_logger import log_error, log_subprocess_error
 except ImportError:
     from error_logger import log_error, log_subprocess_error
-
-# Paths
-YOUTUBE_NOTES_DIR = Path.home() / "share" / "notes" / "resource" / "youtube"
-YOUTUBE_CACHE_DIR = Path.home() / "Media" / "videos" / "yt"
-PODCAST_NOTES_DIR = Path.home() / "share" / "notes" / "resource" / "podcast"
-PODCAST_CACHE_DIR = Path.home() / "Media" / "podcasts"
 
 
 def create_show_nfo(channel_name, channel_id=None):
@@ -57,6 +53,7 @@ def create_show_nfo(channel_name, channel_id=None):
     <uniqueid type="youtube">{channel_id}</uniqueid>
 </tvshow>
 """
+
 
         # Write the NFO file
         with open(nfo_path, "w", encoding="utf-8") as f:

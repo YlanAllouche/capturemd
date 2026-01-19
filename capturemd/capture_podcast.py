@@ -8,10 +8,7 @@ from datetime import datetime
 from pathlib import Path
 from typing import Dict, List, Optional, Union
 
-# Define the podcast directory
-PODCAST_DIR = Path.home() / "share" / "notes" / "resource" / "podcast"
-# Define the podcast cache directory
-PODCAST_CACHE_DIR = Path.home() / "Media" / "podcasts"
+from .paths import PODCAST_DIR, PODCAST_CACHE_DIR
 
 # Ensure directories exist
 PODCAST_DIR.mkdir(parents=True, exist_ok=True)

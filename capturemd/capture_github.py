@@ -8,6 +8,8 @@ import yaml
 import uuid
 from pathlib import Path
 
+from .paths import TOPIC_LANG_DIR
+
 def get_repo_info(repo_id):
     """Get information about a GitHub repository."""
     owner, repo = repo_id.split('/')
@@ -49,7 +51,7 @@ def get_repo_lang(repo_id):
 
 def read_markdown_files():
     """Read all markdown files and extract id and title from frontmatter"""
-    markdown_dir = os.path.expanduser("~/share/notes/topic/lang")
+    markdown_dir = str(TOPIC_LANG_DIR)
     results = []
     
     for filename in os.listdir(markdown_dir):
@@ -85,7 +87,7 @@ def get_or_create_id(title_string):
     
     # If no match found, create new file
     new_id = str(uuid.uuid4())
-    markdown_dir = os.path.expanduser("~/share/notes/topic/lang")
+    markdown_dir = str(TOPIC_LANG_DIR)
     
     # Create frontmatter content
     frontmatter = {

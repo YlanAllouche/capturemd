@@ -10,13 +10,14 @@ import json
 from datetime import datetime, date
 import importlib.util
 
+from .paths import MARKDOWN_DIR
+
 try:
     from capturemd.error_logger import log_error
 except ImportError:
     from error_logger import log_error
 
 # Paths
-MARKDOWN_DIR = Path.home() / "share" / "notes" / "resource"
 SCRIPTS_DIR = Path(__file__).parent
 
 # Custom YAML representer for date objects

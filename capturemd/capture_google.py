@@ -8,8 +8,7 @@ from datetime import datetime
 from pathlib import Path
 from typing import Optional
 
-# Define the notes file
-BROWSER_NOTES_FILE = Path.home() / "share" / "notes" / "browser_notes.md"
+from .paths import BROWSER_NOTES_FILE
 
 def is_google_search(url: str) -> bool:
     """

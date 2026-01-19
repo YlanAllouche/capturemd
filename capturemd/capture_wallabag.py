@@ -8,12 +8,13 @@ from pathlib import Path
 from typing import Dict, List, Optional, Tuple
 
 from capturemd.url_processor import (
-    is_youtube_video, is_github_repo, is_reddit_thread, 
+    is_youtube_video, is_github_repo, is_reddit_thread,
     is_steam_game, is_hackernews_item, is_google_search,
     get_youtube_video_id, get_github_repo_info, get_reddit_thread_info,
     get_steam_game_info, get_hackernews_item_info,
     process_url
 )
+from capturemd.paths import BOOKMARK_NOTES_DIR
 
 # Wallabag API constants - loaded from environment variables
 WALLABAG_HOST = os.getenv("WALLABAG_HOST", "")
@@ -292,7 +293,7 @@ def update_note_with_wallabag_info(note_path: str, entry: Dict) -> None:
 
 def find_unparsed_bookmark_notes() -> List[str]:
     """Find all default bookmark markdown notes that don't have a wallabag_id."""
-    notes_dir = os.path.expanduser("~/share/notes/resource/bookmark")
+    notes_dir = str(BOOKMARK_NOTES_DIR)
     note_paths = []
     
     if not os.path.exists(notes_dir):

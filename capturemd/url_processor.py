@@ -13,15 +13,17 @@ import subprocess
 import json
 from datetime import datetime
 
-# Paths
+from .paths import (
+    MARKDOWN_DIR, YOUTUBE_DIR, GITHUB_DIR, REDDIT_DIR,
+    STEAM_DIR, HN_DIR, DEFAULT_DIR
+)
+
+# Templates directory (still local to this file)
 TEMPLATES_DIR = Path(__file__).parent / "templates"
-MARKDOWN_DIR = Path.home() / "share" / "notes" / "resource"
-YOUTUBE_DIR = MARKDOWN_DIR / "youtube"
-GITHUB_DIR = MARKDOWN_DIR / "github"
-REDDIT_DIR = MARKDOWN_DIR / "reddit"
-STEAM_DIR = MARKDOWN_DIR / "steam"
-HN_DIR = MARKDOWN_DIR / "hn"
-DEFAULT_DIR = MARKDOWN_DIR / "bookmark"
+
+# Ensure directories exist
+for directory in [YOUTUBE_DIR, GITHUB_DIR, REDDIT_DIR, STEAM_DIR, HN_DIR, DEFAULT_DIR]:
+    directory.mkdir(parents=True, exist_ok=True)
 
 # Ensure directories exist
 for directory in [YOUTUBE_DIR, GITHUB_DIR, REDDIT_DIR, STEAM_DIR, HN_DIR, DEFAULT_DIR]:
