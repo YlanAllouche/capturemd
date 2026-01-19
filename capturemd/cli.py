@@ -111,6 +111,12 @@ def create_parser():
 
     # Parse command
     parse_parser = subparsers.add_parser("parse", help="Parse unparsed notes")
+    parse_parser.add_argument(
+        "id",
+        nargs="?",
+        default=None,
+        help="Optional locator ID to parse a specific note",
+    )
 
     # Cache command
     cache_parser = subparsers.add_parser("cache", help="Manage cached content")
@@ -121,6 +127,12 @@ def create_parser():
     # YouTube cache subcommand
     youtube_cache_parser = cache_subparsers.add_parser(
         "youtube", help="Manage YouTube video cache"
+    )
+    youtube_cache_parser.add_argument(
+        "id",
+        nargs="?",
+        default=None,
+        help="Optional locator ID to cache a specific video",
     )
     youtube_cache_parser.add_argument(
         "--regen",
@@ -150,7 +162,9 @@ def main():
         return 1
 
     if args.command == "parse":
-        parse_unparsed_notes()
+        from capturemd.parse_notes import parse_notes
+
+        parse_notes(args.id)
         return 0
 
     # For URL processing commands
@@ -225,7 +239,7 @@ def main():
             elif args.convert_flat_structure:
                 convert_flat_structure_to_hierarchical()
             else:
-                manage_youtube_cache()
+                manage_youtube_cache(args.id)
             return 0
         elif args.cache_type == "podcast":
             from capturemd.cache_manager import manage_podcast_cache

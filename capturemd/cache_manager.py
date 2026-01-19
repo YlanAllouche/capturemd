@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# cache_manager.py - Manage cached content
 
 import json
 import os
@@ -523,8 +522,8 @@ def _reindex_season_episodes():
     reindex_season_episodes(YOUTUBE_CACHE_DIR)
 
 
-def manage_youtube_cache():
-    """Manage YouTube video cache based on notes."""
+def manage_youtube_cache(video_id=None):
+    """Manage YouTube video cache based on notes, optionally only for a specific video."""
     print("Managing YouTube video cache...")
 
     # Get all cached video IDs
@@ -543,38 +542,45 @@ def manage_youtube_cache():
         note_count += 1
         frontmatter = extract_frontmatter(file_path)
         if frontmatter and "locator" in frontmatter:
-            video_id = frontmatter["locator"]
+            current_video_id = frontmatter["locator"]
+            if video_id is not None and current_video_id != video_id:
+                continue
             cache_value = frontmatter.get("cache", False)
-            should_cache[video_id] = cache_value
+            should_cache[current_video_id] = cache_value
 
     print(f"Processed {note_count} notes")
 
+    if video_id is not None:
+        print(f"Processing only video: {video_id}")
+
     # Delete videos that shouldn't be cached
-    for video_id in cached_ids:
-        if video_id not in should_cache or not should_cache[video_id]:
-            print(f"Deleting {video_id} - not marked for caching")
-            delete_youtube_video(video_id)
+    for vid in cached_ids:
+        if video_id is not None and vid != video_id:
+            continue
+        if vid not in should_cache or not should_cache[vid]:
+            print(f"Deleting {vid} - not marked for caching")
+            delete_youtube_video(vid)
 
     # Download videos that should be cached but aren't
-    for video_id, cache in should_cache.items():
-        if cache and video_id not in cached_ids:
-            print(f"Downloading {video_id} - marked for caching but not found in cache")
-            download_youtube_video(video_id)
-        elif cache and video_id in cached_ids:
+    for vid, cache in should_cache.items():
+        if cache and vid not in cached_ids:
+            print(f"Downloading {vid} - marked for caching but not found in cache")
+            download_youtube_video(vid)
+        elif cache and vid in cached_ids:
             # Video exists and should be cached, check if NFO exists
             found_nfo = False
 
             # Look in all possible locations for an NFO file
-            for potential_nfo in YOUTUBE_CACHE_DIR.glob(f"**/{video_id}.nfo"):
+            for potential_nfo in YOUTUBE_CACHE_DIR.glob(f"**/{vid}.nfo"):
                 found_nfo = True
                 break
 
             if not found_nfo:
-                print(f"Creating NFO file for existing video: {video_id}")
+                print(f"Creating NFO file for existing video: {vid}")
                 try:
                     json_cmd = [
                         "yt-dlp",
-                        f"https://www.youtube.com/watch?v={video_id}",
+                        f"https://www.youtube.com/watch?v={vid}",
                         "--dump-json",
                         "--no-playlist",
                     ]
@@ -582,14 +588,14 @@ def manage_youtube_cache():
                         json_cmd, capture_output=True, text=True, check=True
                     )
                     video_info = json.loads(json_result.stdout)
-                    create_nfo_file(video_id, video_info)
+                    create_nfo_file(vid, video_info)
                 except subprocess.CalledProcessError as e:
-                    print(f"Error fetching metadata for NFO file for {video_id}: {e}")
+                    print(f"Error fetching metadata for NFO file for {vid}: {e}")
                     log_subprocess_error(
                         context={
                             "operation": "cache_nfo_create",
-                            "entry_id": video_id,
-                            "video_url": f"https://www.youtube.com/watch?v={video_id}"
+                            "entry_id": vid,
+                            "video_url": f"https://www.youtube.com/watch?v={vid}"
                         },
                         command=json_cmd,
                         exit_code=e.returncode,
@@ -597,19 +603,19 @@ def manage_youtube_cache():
                         stderr=e.stderr if e.stderr else ""
                     )
                 except Exception as e:
-                    print(f"Error creating NFO file for {video_id}: {e}")
+                    print(f"Error creating NFO file for {vid}: {e}")
                     log_error(
                         context={
                             "operation": "cache_nfo_create",
-                            "entry_id": video_id,
-                            "video_url": f"https://www.youtube.com/watch?v={video_id}"
+                            "entry_id": vid,
+                            "video_url": f"https://www.youtube.com/watch?v={vid}"
                         },
                         error=e,
                         error_type="nfo_creation_error"
                     )
 
-    # Re-index episodes by aired date
-    _reindex_season_episodes()
+    if video_id is None:
+        _reindex_season_episodes()
 
     print("YouTube cache management complete")
 
