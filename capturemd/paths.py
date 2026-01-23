@@ -13,6 +13,7 @@ MARKDOWN_DIR = SHARE_PATH / "notes" / "resource"
 
 NOTES_RESOURCE_DIR = MARKDOWN_DIR
 YOUTUBE_DIR = MARKDOWN_DIR / "youtube"
+YOUTUBE_NOTES_DIR = MARKDOWN_DIR / "youtube"
 GITHUB_DIR = MARKDOWN_DIR / "github"
 REDDIT_DIR = MARKDOWN_DIR / "reddit"
 STEAM_DIR = MARKDOWN_DIR / "steam"
@@ -35,6 +36,7 @@ def ensure_directories():
     directories = [
         MARKDOWN_DIR,
         YOUTUBE_DIR,
+        YOUTUBE_NOTES_DIR,
         GITHUB_DIR,
         REDDIT_DIR,
         STEAM_DIR,
