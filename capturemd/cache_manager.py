@@ -522,6 +522,121 @@ def _reindex_season_episodes():
     reindex_season_episodes(YOUTUBE_CACHE_DIR)
 
 
+def cache_single_youtube_video(file_path):
+    """Cache a single YouTube video from a note file without scanning all notes.
+    
+    Args:
+        file_path (Path): Path to the markdown note file
+    """
+    import subprocess
+    import json
+    
+    try:
+        # Read the note file and extract frontmatter
+        frontmatter = extract_frontmatter(file_path)
+        if not frontmatter or "locator" not in frontmatter:
+            print(f"Error: No 'locator' field found in {file_path}")
+            return False
+        
+        video_id = frontmatter["locator"]
+        
+        # Get video metadata to determine the expected path
+        json_cmd = [
+            "yt-dlp",
+            f"https://www.youtube.com/watch?v={video_id}",
+            "--dump-json",
+            "--no-playlist",
+        ]
+        
+        print(f"Getting video metadata for {video_id}...")
+        json_result = subprocess.run(json_cmd, capture_output=True, text=True, check=True)
+        video_info = json.loads(json_result.stdout)
+        
+        # Extract channel and year information
+        channel = video_info.get("channel", video_info.get("uploader", ""))
+        channel_id = video_info.get("channel_id", "")
+        upload_date_data = video_info.get("upload_date", "")
+        
+        # Handle different types of upload_date
+        if isinstance(upload_date_data, str) and upload_date_data:
+            year = upload_date_data[:4]
+        elif hasattr(upload_date_data, "year"):
+            year = str(upload_date_data.year)
+        else:
+            year = str(datetime.now().year)
+        
+        # Sanitize channel name for folder structure
+        safe_channel = (
+            channel.replace("/", "_")
+            .replace("\\", "_")
+            .replace("?", "_")
+            .replace("*", "_")
+            .replace(":", "_")
+            .replace('"', "_")
+            .replace("<", "_")
+            .replace(">", "_")
+        )
+        
+        # Determine expected file path
+        show_dir = YOUTUBE_CACHE_DIR / safe_channel
+        season_dir = show_dir / year
+        season_dir.mkdir(parents=True, exist_ok=True)
+        
+        # Create show NFO if it doesn't exist
+        create_show_nfo(safe_channel, channel_id)
+        
+        # Check for existing video files
+        video_extensions = [".mp4", ".mkv", ".webm"]
+        found_video = False
+        video_path = None
+        
+        for ext in video_extensions:
+            potential_path = season_dir / f"{video_id}{ext}"
+            if potential_path.exists():
+                found_video = True
+                video_path = potential_path
+                break
+        
+        if found_video:
+            print(f"Video already cached: {video_path}")
+            # Check if NFO exists, create if not
+            nfo_path = season_dir / f"{video_id}.nfo"
+            if not nfo_path.exists():
+                print("Creating NFO file...")
+                create_nfo_file(video_id, video_info, create_new_structure=True)
+            return True
+        else:
+            # Download the video
+            print(f"Downloading video to: {season_dir}")
+            success = download_youtube_video(video_id, use_tv_structure=True)
+            return success
+            
+    except subprocess.CalledProcessError as e:
+        print(f"Error getting video metadata: {e}")
+        log_subprocess_error(
+            context={
+                "operation": "cache_single_video",
+                "file": str(file_path)
+            },
+            command=json_cmd,
+            exit_code=e.returncode,
+            stdout=e.stdout if e.stdout else "",
+            stderr=e.stderr if e.stderr else ""
+        )
+        return False
+    except Exception as e:
+        print(f"Error caching video: {e}")
+        log_error(
+            context={
+                "operation": "cache_single_video",
+                "file": str(file_path)
+            },
+            error=e,
+            error_type="cache_single_video_error"
+        )
+        return False
+
+
 def manage_youtube_cache(video_id=None):
     """Manage YouTube video cache based on notes, optionally only for a specific video."""
     print("Managing YouTube video cache...")

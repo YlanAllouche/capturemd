@@ -112,10 +112,10 @@ def create_parser():
     # Parse command
     parse_parser = subparsers.add_parser("parse", help="Parse unparsed notes")
     parse_parser.add_argument(
-        "id",
+        "file",
         nargs="?",
         default=None,
-        help="Optional locator ID to parse a specific note",
+        help="Optional file path to parse a specific note",
     )
 
     # Cache command
@@ -129,10 +129,10 @@ def create_parser():
         "youtube", help="Manage YouTube video cache"
     )
     youtube_cache_parser.add_argument(
-        "id",
+        "file",
         nargs="?",
         default=None,
-        help="Optional locator ID to cache a specific video",
+        help="Optional file path to cache a specific video",
     )
     youtube_cache_parser.add_argument(
         "--regen",
@@ -162,9 +162,17 @@ def main():
         return 1
 
     if args.command == "parse":
-        from capturemd.parse_notes import parse_notes
+        from capturemd.parse_notes import parse_notes, parse_single_note
 
-        parse_notes(args.id)
+        if args.file:
+            file_path = Path(args.file)
+            if not file_path.exists():
+                print(f"Error: File not found: {args.file}")
+                return 1
+            success = parse_single_note(file_path)
+            return 0 if success else 1
+        else:
+            parse_notes(None)
         return 0
 
     # For URL processing commands
@@ -229,6 +237,7 @@ def main():
     if args.command == "cache":
         if args.cache_type == "youtube":
             from capturemd.cache_manager import (
+                cache_single_youtube_video,
                 convert_flat_structure_to_hierarchical,
                 manage_youtube_cache,
                 regenerate_youtube_nfo_files,
@@ -238,8 +247,15 @@ def main():
                 regenerate_youtube_nfo_files()
             elif args.convert_flat_structure:
                 convert_flat_structure_to_hierarchical()
+            elif args.file:
+                file_path = Path(args.file)
+                if not file_path.exists():
+                    print(f"Error: File not found: {args.file}")
+                    return 1
+                success = cache_single_youtube_video(file_path)
+                return 0 if success else 1
             else:
-                manage_youtube_cache(args.id)
+                manage_youtube_cache(None)
             return 0
         elif args.cache_type == "podcast":
             from capturemd.cache_manager import manage_podcast_cache

@@ -202,6 +202,47 @@ def parse_note(note):
         return False
 
 
+def parse_single_note(file_path):
+    """Parse a single note file directly without scanning.
+    
+    Args:
+        file_path (Path): Path to the markdown note file
+    """
+    if not file_path.exists():
+        print(f"Error: File not found: {file_path}")
+        return False
+    
+    try:
+        with open(file_path, "r", encoding="utf-8") as f:
+            content = f.read()
+        
+        frontmatter, rest_content = extract_frontmatter(content)
+        
+        if not frontmatter:
+            print(f"Error: No frontmatter found in {file_path}")
+            return False
+        
+        note = {
+            "path": file_path,
+            "frontmatter": frontmatter,
+            "content": rest_content,
+        }
+        
+        return parse_note(note)
+        
+    except Exception as e:
+        print(f"Error reading file {file_path}: {e}")
+        log_error(
+            context={
+                "operation": "parse_single_note",
+                "file": str(file_path)
+            },
+            error=e,
+            error_type="file_read_error"
+        )
+        return False
+
+
 def parse_notes(locator=None):
     """Parse unparsed notes, optionally only the one with the given locator."""
     unparsed_notes = find_unparsed_notes(locator)
