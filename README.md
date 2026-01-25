@@ -117,3 +117,20 @@ Example:
 export CAPTUREMD_SHARE_BASE=/data/share
 export CAPTUREMD_MEDIA_BASE=/data/Media
 ```
+
+## Single file argument passing
+
+Alternatively both the `parse` and the `cache youtube` sub-commands can take the path to a markdown file and target it instead of going over the entier share/vault.
+
+You can do something like:
+
+```bash
+nvim $(capturemd url <some-youtube-url>)
+```
+
+And then from nvim:
+```
+:! capturemd parse %:p && capturemd cache youtube %:p &
+```
+
+to see the information populate and the video download in the background.
