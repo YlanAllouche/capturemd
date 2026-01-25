@@ -248,7 +248,7 @@ def create_initial_note(url, note_type, tags=None):
         # Check if a note with this video ID already exists
         exists, existing_file = check_existing_note(video_id, YOUTUBE_DIR)
         if exists:
-            print(f"Note for YouTube video {video_id} already exists at: {existing_file}")
+            print(f"Note for YouTube video {video_id} already exists at: {existing_file}", file=sys.stderr)
             return existing_file
         
         # Create initial note
@@ -273,7 +273,7 @@ scope: youtube
         # Check if a note with this repo ID already exists
         exists, existing_file = check_existing_note(repo_id, GITHUB_DIR)
         if exists:
-            print(f"Note for GitHub repo {repo_id} already exists at: {existing_file}")
+            print(f"Note for GitHub repo {repo_id} already exists at: {existing_file}", file=sys.stderr)
             return existing_file
         
         # Create initial note
@@ -299,7 +299,7 @@ scope: github
         # Check if a note with this thread ID already exists
         exists, existing_file = check_existing_note(thread_id, REDDIT_DIR)
         if exists:
-            print(f"Note for Reddit thread {thread_id} already exists at: {existing_file}")
+            print(f"Note for Reddit thread {thread_id} already exists at: {existing_file}", file=sys.stderr)
             return existing_file
         
         # Create initial note
@@ -325,7 +325,7 @@ scope: reddit
         # Check if a note with this app ID already exists
         exists, existing_file = check_existing_note(app_id, STEAM_DIR)
         if exists:
-            print(f"Note for Steam game {app_id} already exists at: {existing_file}")
+            print(f"Note for Steam game {app_id} already exists at: {existing_file}", file=sys.stderr)
             return existing_file
         
         # Create initial note
@@ -350,7 +350,7 @@ scope: steam
         # Check if a note with this item ID already exists
         exists, existing_file = check_existing_note(item_id, HN_DIR)
         if exists:
-            print(f"Note for Hacker News item {item_id} already exists at: {existing_file}")
+            print(f"Note for Hacker News item {item_id} already exists at: {existing_file}", file=sys.stderr)
             return existing_file
         
         # Create initial note
@@ -399,28 +399,28 @@ def process_url(url, tags=None):
     if not url:
         try:
             url = pyperclip.paste()
-            print(f"Using URL from clipboard: {url}")
+            print(f"Using URL from clipboard: {url}", file=sys.stderr)
         except:
-            print("Failed to get URL from clipboard.")
+            print("Failed to get URL from clipboard.", file=sys.stderr)
             return
         
         if not url:
-            print("No URL provided and clipboard is empty.")
+            print("No URL provided and clipboard is empty.", file=sys.stderr)
             return
     
     # Validate URL
     try:
         result = urlparse(url)
         if not all([result.scheme, result.netloc]):
-            print(f"Invalid URL: {url}")
+            print(f"Invalid URL: {url}", file=sys.stderr)
             return
     except:
-        print(f"Invalid URL: {url}")
+        print(f"Invalid URL: {url}", file=sys.stderr)
         return
     
     # Check for Google search query
     if is_google_search(url):
-        print(f"Processing Google search query: {url}")
+        print(f"Processing Google search query: {url}", file=sys.stderr)
         from capturemd.capture_google import capture_google_search
         success = capture_google_search(url)
         if success:
@@ -431,26 +431,26 @@ def process_url(url, tags=None):
     
     # Determine URL type and create note
     if is_youtube_video(url):
-        print(f"Processing YouTube video: {url}")
+        print(f"Processing YouTube video: {url}", file=sys.stderr)
         note_path = create_initial_note(url, "youtube", tags)
     elif is_github_repo(url):
-        print(f"Processing GitHub repository: {url}")
+        print(f"Processing GitHub repository: {url}", file=sys.stderr)
         note_path = create_initial_note(url, "github", tags)
     elif is_reddit_thread(url):
-        print(f"Processing Reddit thread: {url}")
+        print(f"Processing Reddit thread: {url}", file=sys.stderr)
         note_path = create_initial_note(url, "reddit", tags)
     elif is_steam_game(url):
-        print(f"Processing Steam game: {url}")
+        print(f"Processing Steam game: {url}", file=sys.stderr)
         note_path = create_initial_note(url, "steam", tags)
     elif is_hackernews_item(url):
-        print(f"Processing Hacker News item: {url}")
+        print(f"Processing Hacker News item: {url}", file=sys.stderr)
         note_path = create_initial_note(url, "hackernews", tags)
     else:
-        print(f"Processing generic URL: {url}")
+        print(f"Processing generic URL: {url}", file=sys.stderr)
         note_path = create_initial_note(url, "default", tags)
     
     if note_path:
-        print(f"Created note: {note_path}")
+        print(f"Note created at: {note_path}", file=sys.stderr)
         return str(note_path)  # Convert Path to str for consistency
     return None
 
@@ -462,10 +462,14 @@ def main():
         try:
             url = pyperclip.paste()
         except:
-            print("Failed to get URL from clipboard.")
+            print("Failed to get URL from clipboard.", file=sys.stderr)
             return
     
     note_path = process_url(url)
+    
+    # Print path to stdout if successful and not a Google search
+    if note_path and note_path != "google_search_processed":
+        print(note_path)
     
     # Optionally run the parser for the newly created note
     if note_path and "--parse" in sys.argv:
@@ -473,14 +477,14 @@ def main():
 
 def parse_unparsed_notes():
     """Parse all notes with parsed=false."""
-    print("Parsing unparsed notes...")
-    # This will be implemented in the second script
+    print("Parsing unparsed notes...", file=sys.stderr)
+    # This will be implemented in second script
     # For now, we'll just call it as a subprocess
     parser_script = Path(__file__).parent / "parse_notes.py"
     if parser_script.exists():
         subprocess.run([sys.executable, str(parser_script)])
     else:
-        print(f"Parser script not found: {parser_script}")
+        print(f"Parser script not found: {parser_script}", file=sys.stderr)
 
 if __name__ == "__main__":
     main()

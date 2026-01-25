@@ -182,8 +182,10 @@ def main():
             sys.argv.append("--parse")
 
         note_path = process_url(args.url)
-        if note_path and args.parse:
-            parse_unparsed_notes()
+        if note_path and note_path != "google_search_processed":
+            print(note_path)  # Print path to stdout
+            if args.parse:
+                parse_unparsed_notes()
 
         return 0 if note_path else 1
 

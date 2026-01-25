@@ -128,6 +128,8 @@ You can do something like:
 nvim $(capturemd url <some-youtube-url>)
 ```
 
+(note that the "url" command only returns the full path to a markdown document whether it existed already or not)
+
 And then from nvim:
 ```
 :! capturemd parse %:p && capturemd cache youtube %:p &
